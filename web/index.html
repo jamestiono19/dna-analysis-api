@@ -4,37 +4,153 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DNA Sequence Analysis</title>
+  <meta name="description" content="Align a patient DNA sequence to the REF_001 reference, list its variants and translate it to protein.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main>
-    <h1>DNA Sequence Analysis</h1>
-    <p class="lead">Upload one FASTA file to align it against REF_001 or translate it to protein.</p>
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <p class="wordmark">DNA Sequence Analysis</p>
+      <nav class="masthead-links" aria-label="Documentation">
+        <a href="/docs">API reference</a>
+      </nav>
+    </div>
+  </header>
 
-    <form id="analysis-form">
-      <label for="file">FASTA file</label>
-      <input type="file" id="file" name="file" accept=".fasta,.fa,.fna,.txt">
+  <main class="wrap">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-text">
+        <p class="eyebrow">Sequence review</p>
+        <h1 id="page-title">Compare a patient sequence with the reference, then read what changed.</h1>
+        <p class="lead">
+          Upload one FASTA file. The service aligns it to the reference coding sequence,
+          lists every substitution, insertion and deletion by reference position, and
+          translates the sequence to protein.
+        </p>
 
-      <fieldset>
-        <legend>Action</legend>
-        <label><input type="radio" name="action" value="align" checked> Align to reference</label>
-        <label><input type="radio" name="action" value="translate"> Translate to protein</label>
-        <label><input type="radio" name="action" value="analyze"> Align, translate and annotate effects</label>
-      </fieldset>
+        <div class="panel facts-panel">
+          <h2 class="panel-title">Reference sequence</h2>
+          <dl class="facts">
+            <div><dt>Name</dt><dd class="mono">REF_001</dd></div>
+            <div><dt>Length</dt><dd class="num">300 bp</dd></div>
+            <div><dt>Coding frame</dt><dd>Starts at base 1</dd></div>
+          </dl>
+          <h2 class="panel-title panel-title-spaced">What you can upload</h2>
+          <ul class="panel-list">
+            <li>One FASTA record with a header line starting with <span class="mono">&gt;</span></li>
+            <li>1 to 1,000 bases, using only A, C, G, T and N, in any case</li>
+          </ul>
+        </div>
+      </div>
 
-      <label for="frame">Reading frame (used for translation)</label>
-      <select id="frame" name="frame">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-      </select>
+      <form id="analysis-form" class="worksheet" novalidate>
+        <div class="step">
+          <p class="step-label"><span class="step-number">1</span> Sequence file</p>
+          <label class="file-drop" for="file">
+            <input type="file" id="file" name="file" accept=".fasta,.fa,.fna,.txt">
+            <span class="file-drop-title" id="file-name">Choose a FASTA file</span>
+            <span class="file-drop-hint">.fasta, .fa, .fna or .txt, up to 1,000 nucleotides</span>
+          </label>
+        </div>
 
-      <button type="submit">Run</button>
-    </form>
+        <fieldset class="step">
+          <legend class="step-label"><span class="step-number">2</span> Analysis</legend>
+          <label class="choice">
+            <input type="radio" name="action" value="align" checked>
+            <span class="choice-text">
+              <span class="choice-title">Align to reference</span>
+              <span class="choice-hint">Global alignment, score, identity and variant list</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="action" value="translate">
+            <span class="choice-text">
+              <span class="choice-title">Translate to protein</span>
+              <span class="choice-hint">Standard genetic code, stops at the first stop codon</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="action" value="analyze">
+            <span class="choice-text">
+              <span class="choice-title">Full analysis</span>
+              <span class="choice-hint">Alignment, variant effects in reference frame 1, and protein</span>
+            </span>
+          </label>
+        </fieldset>
 
-    <p id="error" class="error" role="alert" hidden></p>
-    <section id="result" aria-live="polite" hidden></section>
+        <fieldset class="step" id="frame-step" disabled>
+          <legend class="step-label"><span class="step-number">3</span> Reading frame</legend>
+          <div class="segmented" role="radiogroup" aria-describedby="frame-hint">
+            <label><input type="radio" name="frame" value="1" checked><span>Frame 1</span></label>
+            <label><input type="radio" name="frame" value="2"><span>Frame 2</span></label>
+            <label><input type="radio" name="frame" value="3"><span>Frame 3</span></label>
+          </div>
+          <p class="field-hint" id="frame-hint">Only used by <strong>Translate to protein</strong>. Frame 1 starts at base 1, frame 2 at base 2, frame 3 at base 3.</p>
+        </fieldset>
+
+        <button type="submit" class="run">Run analysis</button>
+      </form>
+    </section>
+
+    <section id="error" class="notice" role="alert" hidden>
+      <h2 class="notice-title">The file could not be analysed</h2>
+      <p class="notice-message" id="error-message"></p>
+    </section>
+
+    <section id="result" class="result" aria-live="polite" hidden></section>
+
+    <section class="method" aria-labelledby="method-title">
+      <header class="method-head">
+        <p class="eyebrow">Method</p>
+        <h2 id="method-title">How the results are calculated</h2>
+      </header>
+
+      <div class="method-grid">
+        <article class="panel">
+          <h3 class="panel-title">Alignment score</h3>
+          <p class="panel-text">Global alignment adds up one score per column.</p>
+          <table class="score-table">
+            <caption class="visually-hidden">Score per alignment column</caption>
+            <tbody>
+              <tr><th scope="row">Matching bases</th><td>+1</td></tr>
+              <tr><th scope="row">Different bases</th><td>−1</td></tr>
+              <tr><th scope="row">Gap, per base</th><td>−2</td></tr>
+              <tr><th scope="row">Any column with N</th><td>0</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="panel">
+          <h3 class="panel-title">Identity</h3>
+          <p class="panel-text">
+            The share of alignment columns where both sequences have the same
+            A, C, G or T base. Gap columns and columns with N count as not identical.
+          </p>
+          <p class="panel-formula">identical columns ÷ all columns</p>
+        </article>
+
+        <article class="panel">
+          <h3 class="panel-title">Variant positions</h3>
+          <ul class="panel-list">
+            <li><strong>Substitutions and deletions</strong> are numbered by reference base, starting at 1.</li>
+            <li><strong>Insertions</strong> are numbered by the reference base before them. Position 0 means before base 1.</li>
+            <li><strong>Neighbouring</strong> inserted or deleted bases are reported as one event.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
   </main>
+
+  <footer class="colophon">
+    <div class="wrap colophon-inner">
+      <p>DNA Sequence Analysis · Reference REF_001</p>
+      <a href="/docs">API reference</a>
+    </div>
+  </footer>
+
   <script src="/static/app.js"></script>
 </body>
 </html>
