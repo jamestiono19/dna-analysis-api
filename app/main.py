@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.errors import FastaValidationError, InputError, InvalidFrameError, MissingFileError
-from app.routers import align, translate
+from app.routers import align, translate, analyze
 from app.services.reference import get_reference
 
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
@@ -40,6 +40,7 @@ app = FastAPI(
 )
 app.include_router(align.router)
 app.include_router(translate.router)
+app.include_router(analyze.router)
 
 
 @app.exception_handler(InputError)
