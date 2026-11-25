@@ -367,4 +367,4 @@ How unclear cases are handled:
 - Status 400 is used for a bad file and 422 for a bad request.
 
 ## Web interface
-[Web interface showing a full analysis](web/Page-Screenshot.png)
+![Web interface showing a full analysis](web/Page-Screenshot.png)
