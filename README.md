@@ -365,3 +365,6 @@ How unclear cases are handled:
 - The reference is loaded by the server from `app/data/reference.fasta` and is not sent in the request.
 - A missing `frame` field, or an empty one, means frame 1. FastAPI treats an empty form value as not sent.
 - Status 400 is used for a bad file and 422 for a bad request.
+
+## Web interface
+[Web interface showing a full analysis](web/Page-Screenshot.png)
