@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNA Sequence Analysis</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <h1>DNA Sequence Analysis</h1>
+    <p class="lead">Upload one FASTA file to align it against REF_001 or translate it to protein.</p>
+
+    <form id="analysis-form">
+      <label for="file">FASTA file</label>
+      <input type="file" id="file" name="file" accept=".fasta,.fa,.fna,.txt">
+
+      <fieldset>
+        <legend>Action</legend>
+        <label><input type="radio" name="action" value="align" checked> Align to reference</label>
+        <label><input type="radio" name="action" value="translate"> Translate to protein</label>
+        <label><input type="radio" name="action" value="analyze"> Align, translate and annotate effects</label>
+      </fieldset>
+
+      <label for="frame">Reading frame (used for translation)</label>
+      <select id="frame" name="frame">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+
+      <button type="submit">Run</button>
+    </form>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <section id="result" aria-live="polite" hidden></section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

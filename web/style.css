@@ -1,0 +1,58 @@
+:root {
+  --ink: #1d1d1b;
+  --muted: #5f5f5a;
+  --rule: #d6d3cc;
+  --paper: #fbfaf7;
+  --code-bg: #f1efe9;
+  --error: #9b1c1c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 Georgia, "Times New Roman", serif;
+}
+
+main { max-width: 52rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+
+h1 { font-size: 1.9rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1.35rem; border-top: 1px solid var(--rule); padding-top: 1.5rem; margin-top: 2rem; }
+h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+.lead { color: var(--muted); margin-top: 0; }
+
+form { display: grid; gap: 0.75rem; max-width: 30rem; margin-top: 1.5rem; }
+label, legend { font-weight: bold; }
+fieldset { border: 1px solid var(--rule); padding: 0.75rem 1rem; margin: 0; }
+fieldset label { display: block; font-weight: normal; }
+input, select, button { font: inherit; }
+
+button {
+  justify-self: start;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: wait; }
+
+.error { color: var(--error); border-left: 3px solid var(--error); padding-left: 0.75rem; }
+
+pre {
+  font: 13px/1.4 Consolas, "Courier New", monospace;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.75rem;
+  overflow-x: auto;
+}
+.protein { white-space: pre-wrap; word-break: break-all; }
+
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1rem; margin: 0 0 0.75rem; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--rule); }
