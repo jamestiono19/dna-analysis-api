@@ -60,6 +60,7 @@ def calculate_identity(reference_aligned: str, query_aligned: str) -> float:
 def _best(candidates: tuple[int, int, int], priority: tuple[int, int, int]) -> tuple[int, int]:
     """Return (score, state) of the highest candidate, breaking ties by priority."""
     best_state = priority[0]
+    # Only a higher score replaces the current pick, so on a tie the one listed first wins.
     for state in priority[1:]:
         if candidates[state] > candidates[best_state]:
             best_state = state
@@ -68,6 +69,7 @@ def _best(candidates: tuple[int, int, int], priority: tuple[int, int, int]) -> t
 def global_align(reference: str, query: str) -> AlignmentResult:
     rows, cols = len(reference), len(query)
 
+    # Make a grid with one extra row and column for the start.
     def table(value: int) -> list[list[int]]:
         return [[value] * (cols + 1) for _ in range(rows + 1)]
 
@@ -77,17 +79,24 @@ def global_align(reference: str, query: str) -> AlignmentResult:
     # state of the previous column on the best path
     came_from = [table(MATCH), table(MATCH), table(MATCH)]
 
+    # Starting point: nothing aligned yet, so the score is 0.
     scores[MATCH][0][0] = 0
+    # First column: reference bases against nothing, so every step is a gap.
     for i in range(1, rows + 1):
         scores[DELETION][i][0] = i * GAP_SCORE
+        # The first gap comes from the start cell, the later ones continue the same gap.
         came_from[DELETION][i][0] = DELETION if i > 1 else MATCH
+    # First row: query bases against nothing, also all gaps.
     for j in range(1, cols + 1):
         scores[INSERTION][0][j] = j * GAP_SCORE
         came_from[INSERTION][0][j] = INSERTION if j > 1 else MATCH
 
+    # Fill the rest of the grid one cell at a time.
+    # Each cell keeps the best score for each of the three ways to reach it.
     for i in range(1, rows + 1):
         reference_base = reference[i - 1]
         for j in range(1, cols + 1): 
+            # Diagonal step: the reference base and the query base share one column.
             diagonal = (
                 scores[MATCH][i - 1][j - 1], 
                 scores[DELETION][i - 1][j - 1],
@@ -97,6 +106,7 @@ def global_align(reference: str, query: str) -> AlignmentResult:
             scores[MATCH][i][j] = best + pair_score(reference_base, query[j - 1])
             came_from[MATCH][i][j] = state
 
+            # Step down: a reference base with a gap in the query (deletion).
             above = (
                 scores[MATCH][i - 1][j],
                 scores[DELETION][i - 1][j],
@@ -106,6 +116,7 @@ def global_align(reference: str, query: str) -> AlignmentResult:
             scores[DELETION][i][j] = best + GAP_SCORE
             came_from[DELETION][i][j] = state
 
+            # Step right: a query base with a gap in the reference (insertion).
             left = (
                 scores[MATCH][i][j - 1],
                 scores[DELETION][i][j - 1],
@@ -115,12 +126,15 @@ def global_align(reference: str, query: str) -> AlignmentResult:
             scores[INSERTION][i][j] = best + GAP_SCORE
             came_from[INSERTION][i][j] = state
 
+    # The bottom-right cell holds the best score for the full sequences.
     final = (scores[MATCH][rows][cols], scores[DELETION][rows][cols], scores[INSERTION][rows][cols])
     final_score, state = _best(final, MATCH_PRIORITY)
 
+    # Walk back from the bottom-right corner to rebuild the alignment.
     reference_aligned, query_aligned = [], []
     i, j = rows, cols
     while i > 0 or j > 0:
+        # Note where this step came from before we move.
         previous_state = came_from[state][i][j]
         if state == MATCH:
             reference_aligned.append(reference[i - 1])
@@ -136,6 +150,7 @@ def global_align(reference: str, query: str) -> AlignmentResult:
             j -= 1
         state = previous_state 
 
+    # We built the strings from the end, so flip them back to normal order.
     reference_text = "".join(reversed(reference_aligned))
     query_text = "".join(reversed(query_aligned))
     return AlignmentResult(

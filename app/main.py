@@ -27,6 +27,7 @@ def error_response(status_code: int, error_type: str, message: str) -> JSONRespo
     )
 
 
+# Code before 'yield' runs when the server starts, code after it runs when it stops.
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     get_reference()  # load REF_001 at startup so a broken reference file fails fast
@@ -45,19 +46,24 @@ app.include_router(analyze.router)
 
 @app.exception_handler(InputError)
 async def handle_input_error(_request: Request, exc: InputError) -> JSONResponse:
+    # Find the status and error name for this error. Anything not in the list gets 400.
     status_code, error_type = ERROR_MAPPING.get(type(exc), (400, "invalid_input"))
     return error_response(status_code, error_type, exc.message)
 
 
+# FastAPI's own input check failed (wrong field type).
+# Display created error format.
 @app.exception_handler(RequestValidationError)
 async def handle_request_validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
     errors = exc.errors()
     first = errors[0] if errors else {}
+    # Turn the error location into a field name, e.g. ("body", "frame") becomes "frame".
     field = ".".join(str(part) for part in first.get("loc", ()) if part != "body") or "request"
     message = f"Invalid value for '{field}': {first.get('msg', 'invalid request')}."
     return error_response(422, "invalid_request", message)
 
 
+# Only show the web page if the web folder exists.
 if WEB_DIR.is_dir():
     app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 

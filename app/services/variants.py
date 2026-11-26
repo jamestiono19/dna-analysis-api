@@ -21,8 +21,10 @@ def call_variants(reference_aligned: str, query_aligned: str) -> list[Variant]:
         reference_base = reference_aligned[column]
         query_base = query_aligned[column]
 
+        # Both sides have a base. If the letters differ, it is SNV.
         if reference_base != "-" and query_base != "-":
             reference_position += 1
+            # Only count it when both are real letters (not N) and they differ.
             if (
                 reference_base != query_base
                 and reference_base in DEFINED_BASES
@@ -37,16 +39,20 @@ def call_variants(reference_aligned: str, query_aligned: str) -> list[Variant]:
             while end < total_columns and query_aligned[end] == "-":
                 end += 1
             deleted = reference_aligned[column:end]
+            # A deletion starts at the next reference base.
             variants.append(Variant(reference_position + 1, deleted, "-", "deletion"))
             reference_position += len(deleted)
             column = end
 
         else:
+            # Insertion: group every consecutive column with a gap in the reference.
             end = column
             while end < total_columns and reference_aligned[end] == "-":
                 end += 1
             inserted = query_aligned[column:end]
+            # An insertion sits after the last reference base we passed (0 means before the first one).
             variants.append(Variant(reference_position, "-", inserted, "insertion"))
             column = end
 
+    # Order by position. Variants at the same position keep their original order.
     return sorted(variants, key = lambda variant: variant.position)

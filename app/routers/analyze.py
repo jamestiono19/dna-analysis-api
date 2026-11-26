@@ -28,6 +28,7 @@ def analyze(file: Annotated[UploadFile | None, File()] = None) -> AnalyzeRespons
     )
     translation = translate(query.sequence, frame=1)
 
+    # Join each variant's basic fields with its effect details into one object.
     annotated = [
         AnnotatedVariantSchema(
             **asdict(effect.variant),

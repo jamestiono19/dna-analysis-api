@@ -11,6 +11,7 @@ PATIENTS = [f"patient_0{n}.fasta" for n in range(1, 6)]
 def read_fixture(name: str) -> str:
     return (FIXTURES / name).read_text(encoding="utf-8")
 
+# One test client is made once and shared by all tests.
 @pytest.fixture(scope="session")
 def client() -> TestClient:
     return TestClient(app)
@@ -20,6 +21,7 @@ def post_fasta(client):
     """Upload FASTA text to an endpoint as multipart field 'file'."""
 
     def _post(endpoint: str, text: str, **form_fields):
+        # (file name, file content, file type), the same way a browser uploads a file.
         files = {"file": ("query.fasta", text.encode("utf-8"), "text/plain")}
         return client.post(endpoint, files=files, data=form_fields)
 

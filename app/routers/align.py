@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api", tags=["alignment"])
 
 
 @router.post("/align", response_model=AlignResponse, responses=ERROR_RESPONSES)
+# The file is allowed to be missing here, so we can send our own clear 'missing file' error.
 def align(file: Annotated[UploadFile | None, File()] = None) -> AlignResponse:
     """Globally align one FASTA sequence to REF_001 and list its variants."""
     query = read_fasta_upload(file)
@@ -25,6 +26,7 @@ def align(file: Annotated[UploadFile | None, File()] = None) -> AlignResponse:
     return AlignResponse(
         sequence_id=query.sequence_id,
         reference_id=reference.sequence_id,
+        # asdict turns the result into a dictionary, and ** passes each key as a named value.
         alignment=AlignmentSchema(**asdict(alignment)),
         variants=[VariantSchema(**asdict(variant)) for variant in variants],
     )

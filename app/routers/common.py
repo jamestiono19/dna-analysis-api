@@ -9,6 +9,7 @@ from app.services.fasta import FastaRecord, decode_upload, parse_fasta
 def read_fasta_upload(file: UploadFile | None) -> FastaRecord:
     if file is None:
         raise MissingFileError("No file was uploaded. Send the FASTA file in the multipart field 'file'.")
+    # Read the raw bytes, turn them into text, then check that it is valid FASTA.
     return parse_fasta(decode_upload(file.file.read()))
 
 
@@ -17,6 +18,7 @@ def parse_frame(raw_frame: str | None) -> int:
     if raw_frame is None:
         return 1
     value = raw_frame.strip()
+    # Compare as text, so inputs like "01" or "1.5" are refused.
     if value not in ("1", "2", "3"):
         raise InvalidFrameError(f"Invalid frame {raw_frame!r}: frame must be 1, 2 or 3.")
     return int(value)

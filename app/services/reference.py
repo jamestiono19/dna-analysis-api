@@ -7,6 +7,7 @@ from app.services.fasta import FastaRecord, parse_fasta
 
 REFERENCE_PATH = Path(__file__).resolve().parents[1] / "data" / "reference.fasta"
 
+# Remember the result of the first call, so the file is read only once.
 @lru_cache(maxsize=1)
 def  get_reference() -> FastaRecord:
     """Read and validate the reference data once, then reuse it for later requests."""

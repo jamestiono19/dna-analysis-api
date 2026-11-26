@@ -57,6 +57,7 @@ def test_length_limit_counts_bases_across_lines():
     ],
 )
 def test_invalid_fasta_is_rejected(text, expected_message):
+    # The code inside must raise this error. 'error' lets us read its message.
     with pytest.raises(FastaValidationError) as error:
         parse_fasta(text)
     assert expected_message in error.value.message

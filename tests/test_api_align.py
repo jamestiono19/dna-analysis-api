@@ -33,6 +33,7 @@ def test_patient_02_matches_the_example_in_the_brief(post_fasta):
     assert body["variants"] == EXPECTED_VARIANTS["patient_02.fasta"]
 
 
+# Run this test once for each patient file.
 @pytest.mark.parametrize("name", PATIENTS)
 def test_variant_coordinates_and_grouping_for_each_patient(post_fasta, name):
     response = post_fasta("/api/align", read_fixture(name))
@@ -43,6 +44,7 @@ def test_variant_coordinates_and_grouping_for_each_patient(post_fasta, name):
 @pytest.mark.parametrize("name", PATIENTS)
 def test_full_aligned_strings_are_returned(post_fasta, name):
     alignment = post_fasta("/api/align", read_fixture(name)).json()["alignment"]
+    # The full strings must come back, not a shortened version.
     assert "..." not in alignment["reference_aligned"]
     assert alignment["reference_aligned"].replace("-", "") == get_reference().sequence
     assert len(alignment["reference_aligned"]) == len(alignment["query_aligned"])
@@ -57,6 +59,7 @@ def test_patient_05_insertion_is_supported_by_returned_alignment(post_fasta):
 
 def test_lowercase_input_gives_the_same_result(post_fasta):
     text = read_fixture("patient_02.fasta")
+    # Split the text at the first line break: header line, then the sequence.
     header, _, sequence = text.partition("\n")
     upper = post_fasta("/api/align", text).json()
     lower = post_fasta("/api/align", header + "\n" + sequence.lower()).json()

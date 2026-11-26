@@ -28,6 +28,7 @@ class ErrorResponse(BaseModel):
     error: ErrorDetail
 
 
+# Error examples shown on the page.
 ERROR_RESPONSES = {
     400: {"model": ErrorResponse, "description": "Invalid FASTA file"},
     422: {"model": ErrorResponse, "description": "Missing file or invalid request field"},

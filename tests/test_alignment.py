@@ -62,12 +62,14 @@ def test_tie_break_is_deterministic():
     assert first.query_aligned == "ACG-TGCA"
 
 
+# Run this test once for each patient file.
 @pytest.mark.parametrize("name", PATIENTS)
 def test_aligned_strings_contain_the_complete_inputs(name):
     reference = get_reference().sequence
     query = patient_sequence(name)
     result = global_align(reference, query)
     assert len(result.reference_aligned) == len(result.query_aligned)
+    # Removing the gaps must give back the original sequence.
     assert result.reference_aligned.replace("-", "") == reference
     assert result.query_aligned.replace("-", "") == query
     assert 0.0 <= result.identity <= 1.0

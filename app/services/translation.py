@@ -8,6 +8,8 @@ from app.errors import InvalidFrameError
 
 _BASES = "TCAG"
 _AMINO_ACIDS = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG"
+# Build all 64 three-letter codons in TCAG order and pair each one
+# with the letter at the same spot in _AMINO_ACIDS.
 CODON_TABLE = {
     first + second + third: _AMINO_ACIDS[index]
     for index, (first, second, third) in enumerate(
@@ -39,6 +41,7 @@ def translate(sequence: str, frame: int = 1):
     # Range stops early so only complete codons are read
     for start in range(frame - 1, len(sequence) - 2, 3):
         amino_acid = translate_codon(sequence[start:start + 3])
+        # End at the first stop codon and leave it out of the protein.
         if amino_acid == STOP:
             has_stop_codon = True
             break

@@ -13,6 +13,7 @@ def effects_for(query: str):
 
 
 def test_synonymous():
+    # Writing (effect,) checks that there is exactly one result.
     (effect,) = effects_for("ATGAAGTTTGGGTAA")  # AAA -> AAG, both K
     assert effect.effect == "synonymous"
     assert (effect.ref_codon, effect.alt_codon) == ("AAA", "AAG")

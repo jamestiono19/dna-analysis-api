@@ -6,6 +6,7 @@ from app.schemas.common import AlignmentSchema, VariantSchema
 
 
 class AnnotatedVariantSchema(VariantSchema):
+    # the value must be one of these exact words.
     effect: Literal[
         "synonymous",
         "missense",
@@ -15,6 +16,7 @@ class AnnotatedVariantSchema(VariantSchema):
         "in-frame deletion",
         "undetermined",
     ]
+    # These can be empty (None), for example for insertions and deletions.
     ref_codon: str | None = None
     alt_codon: str | None = None
     ref_amino_acid: str | None = None

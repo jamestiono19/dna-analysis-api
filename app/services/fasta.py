@@ -23,6 +23,7 @@ def decode_upload(content: bytes) -> str:
         # utf-8-sig removes the byte order mark some Windows editors add.
         return content.decode("utf-8-sig")
     except UnicodeDecodeError:
+        # 'from None' hides Python's technical error so only our message is shown.
         raise FastaValidationError("The file is not plain UTF-8 text.") from None
 
 def parse_fasta(text: str) -> FastaRecord:
@@ -31,6 +32,7 @@ def parse_fasta(text: str) -> FastaRecord:
     sequence_lines = []
 
     for line_number, raw_line in enumerate(text.splitlines(), start = 1):
+        # Remove spaces and line endings at both ends.
         line = raw_line.strip()
         if not line:
             continue # blank lines are allowed
@@ -40,6 +42,7 @@ def parse_fasta(text: str) -> FastaRecord:
                 raise FastaValidationError(
                     f"Only one FASTA record is allowed, but a second header was found on line {line_number}."
                 )
+            # Drop the '>' and keep the rest as the header.
             header = line[1:].strip()
             if not header:
                 raise FastaValidationError("The FASTA header is empty. Write an identifier after '>'.")
@@ -70,5 +73,6 @@ def parse_fasta(text: str) -> FastaRecord:
             f"The sequence is {len(sequence)} nucleotides long. The limit is {MAX_SEQUENCE_LENGTH}."
         )
 
+    # The id is the first word of the header: 'REF_001 some notes' gives 'REF_001'.
     return FastaRecord(sequence_id = header.split()[0], sequence=sequence.upper())
             

@@ -22,6 +22,7 @@ def test_frame_defaults_to_one(post_fasta):
     assert body["protein"] == BRIEF_PROTEIN
 
 
+# Two parametrize lines: runs for every patient in every frame (5 x 3 = 15 runs).
 @pytest.mark.parametrize("name", PATIENTS)
 @pytest.mark.parametrize("frame", ["1", "2", "3"])
 def test_every_patient_in_every_frame(post_fasta, name, frame):
